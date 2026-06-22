@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ข้อสอบจำลอง SHM (Comprehensive Edition)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0f766e;
+            --secondary: #14b8a6;
+            --bg-color: #f3f4f6;
+            --text: #1f2937;
+        }
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .controls {
+            background: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            z-index: 100;
+            position: sticky;
+            top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            font-family: 'Sarabun', sans-serif;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-random { background-color: var(--primary); color: white; }
+        .btn-random:hover { background-color: #0f5132; }
+        .btn-print { background-color: #d97706; color: white; }
+        .btn-print:hover { background-color: #b45309; }
+
+        .page {
+            background: white;
+            width: 210mm;
+            height: 297mm;
+            padding: 15mm;
+            box-sizing: border-box;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        h1, h2, h3 { color: var(--primary); margin-top: 0; }
+        h1 { text-align: center; font-size: 24px; border-bottom: 2px solid var(--primary); padding-bottom: 10px; }
+        
+        .trick-box {
+            background-color: #f0fdfa;
+            border-left: 4px solid var(--secondary);
+            padding: 10px 15px;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+        .highlight-text { color: #b91c1c; font-weight: bold; }
+
+        .question-section { font-size: 16px; line-height: 1.6; margin-bottom: 10px; }
+        .workspace {
+            flex-grow: 1;
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 20px 20px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin: 10px 0;
+            padding: 10px;
+            color: #94a3b8;
+            font-style: italic;
+        }
+        .solution-section {
+            border-top: 2px dashed #94a3b8;
+            padding-top: 15px;
+            font-size: 14.5px;
+            line-height: 1.5;
+            background-color: #f8fafc;
+            padding: 15px;
+            border-radius: 0 0 8px 8px;
+        }
+        
+        .svg-container {
+            display: flex;
+            justify-content: center;
+            margin: 15px 0;
+        }
+
+        @media print {
+            body { background: transparent; margin: 0; padding: 0; }
+            .controls { display: none; }
+            .page {
+                box-shadow: none;
+                margin: 0;
+                border: none;
+                page-break-after: always;
+                height: 297mm !important;
+            }
+            .workspace { background-image: none; border-color: transparent; }
+            @page { size: A4; margin: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="controls no-print">
+        <button class="btn-random" onclick="generateAll()">🎲 สุ่มโจทย์ใหม่ (รูปแบบหลากหลาย)</button>
+        <button class="btn-print" onclick="window.print()">🖨️ พิมพ์เป็น PDF</button>
+    </div>
+
+    <div class="page">
+        <h1>📌 คัมภีร์สรุปสูตร SHM (ครบทุกรูปแบบการประยุกต์)</h1>
+        
+        <div class="trick-box">
+            <h3>1. ปริมาณพื้นฐานและการอ่านสมการ</h3>
+            <p>• <b>T = 1/f</b> และ <b>&omega; = 2&pi;/T = 2&pi;f</b><br>
+               • สมการ: <b>y = A sin(&omega;t)</b> (เริ่มแกว่งจากจุดสมดุล) หรือ <b>y = A cos(&omega;t)</b> (เริ่มปล่อยจากจุดปลายสุด)<br>
+               • ความเร็วสูงสุด <b>v<sub>max</sub> = &omega;A</b> , ความเร่งสูงสุด <b>a<sub>max</sub> = &omega;&sup2;A</b>
+            </p>
+        </div>
+
+        <div class="trick-box">
+            <h3>2. ความเร็วและความเร่ง ณ ตำแหน่ง x ใดๆ</h3>
+            <p>• ความเร็ว: <span class="highlight-text">v = &plusmn;&omega;&radic;(A&sup2; - x&sup2;)</span><br>
+               • ความเร่ง: <span class="highlight-text">a = -&omega;&sup2;x</span>
+            </p>
+        </div>
+
+        <div class="trick-box">
+            <h3>3. ลูกตุ้มนาฬิกา (Simple Pendulum)</h3>
+            <p>• สูตรคาบ: <span class="highlight-text">T = 2&pi;&radic;(L/g)</span><br>
+               <i>💡 มวลไม่มีผลต่อคาบ! ถ้าไปทดลองบนดาวดวงอื่นที่ g เปลี่ยน คาบ T ถึงจะเปลี่ยนตาม</i>
+            </p>
+        </div>
+
+        <div class="trick-box">
+            <h3>4. ระบบมวลติดสปริง (Mass-Spring System)</h3>
+            <p>• สูตรคาบ: <span class="highlight-text">T = 2&pi;&radic;(m/k)</span><br>
+               <i>💡 <b>การต่อสปริง:</b><br>
+               - <b>ต่อขนาน</b> (สปริงคู่กันช่วยกันดึง): สปริงจะแข็งขึ้น ให้เอา k มาบวกกัน &rarr; <span class="highlight-text">k<sub>รวม</sub> = k<sub>1</sub> + k<sub>2</sub></span><br>
+               - <b>ต่ออนุกรม</b> (สปริงต่อเป็นเส้นยาว): สปริงจะย้วยลง (อ่อนลง) คิดแบบส่วนกลับ &rarr; <span class="highlight-text">1/k<sub>รวม</sub> = 1/k<sub>1</sub> + 1/k<sub>2</sub></span> หรือ k<sub>รวม</sub> = (k<sub>1</sub>&times;k<sub>2</sub>)/(k<sub>1</sub>+k<sub>2</sub>)
+               </i>
+            </p>
+        </div>
+    </div>
+
+    <div class="page" id="page-q1"></div>
+    <div class="page" id="page-q2"></div>
+    <div class="page" id="page-q3"></div>
+    <div class="page" id="page-q4"></div>
+
+    <script>
+        function rnd(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+        function rndFloat(min, max) { return (Math.random() * (max - min) + min).toFixed(2); }
+
+        function generateAll() {
+            genQ1(); genQ2(); genQ3(); genQ4();
+        }
+
+        // ข้อ 1: กราฟ (สุ่มระหว่าง ให้อ่านกราฟ หรือ ให้วาดกราฟ)
+        function genQ1() {
+            let type = rnd(0, 1); // 0 = อ่านกราฟ, 1 = วาดกราฟ
+            let A = rnd(4, 15);
+            let T = rnd(2, 8) / 2;
+            let f = (1/T);
+            let page = document.getElementById('page-q1');
+            
+            // ฟังก์ชันวาดกริดแกน x,y
+            let gridSVG = (drawWave, waveColor="#0ea5e9", waveDash="") => {
+                let svg = `<svg viewBox="-5 -15 110 30" width="80%" height="150" style="background:#f8fafc; border:1px solid #ccc; font-family:sans-serif;">
+                    <defs>
+                        <pattern id="smallGrid" width="2" height="2" patternUnits="userSpaceOnUse"><path d="M 2 0 L 0 0 0 2" fill="none" stroke="#e2e8f0" stroke-width="0.5"/></pattern>
+                        <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><rect width="10" height="10" fill="url(#smallGrid)"/><path d="M 10 0 L 0 0 0 10" fill="none" stroke="#cbd5e1" stroke-width="0.5"/></pattern>
+                    </defs>
+                    <rect width="100" height="30" y="-15" fill="url(#grid)" />
+                    <line x1="0" y1="0" x2="100" y2="0" stroke="black" stroke-width="0.5"/>
+                    <line x1="0" y1="-15" x2="0" y2="15" stroke="black" stroke-width="0.5"/>
+                    <text x="98" y="-1" font-size="2" text-anchor="end">t(s)</text>
+                    <text x="1" y="-12" font-size="2">x(cm)</text>`;
+                
+                // สเกลแกน Y
+                svg += `<text x="-1" y="-10" font-size="3" text-anchor="end">${A}</text>
+                        <text x="-1" y="10" font-size="3" text-anchor="end">-${A}</text>`;
+                
+                // สเกลแกน X (2 คาบ)
+                let marks = [T/2, T, T*1.5, T*2];
+                marks.forEach((m, idx) => {
+                    let xPos = (idx + 1) * 25;
+                    svg += `<line x1="${xPos}" y1="-1" x2="${xPos}" y2="1" stroke="black" stroke-width="0.5"/>`;
+                    svg += `<text x="${xPos}" y="4" font-size="3" text-anchor="middle">${m}</text>`;
+                });
+
+                if(drawWave) {
+                    let path = `M 0 0 `;
+                    for(let i=0; i<=100; i+=0.5) {
+                        let t_val = (i/100) * (2*T);
+                        let y_val = 10 * Math.sin((2*Math.PI/T)*t_val); // map A to 10 SVG units
+                        path += `L ${i} ${-y_val} `;
+                    }
+                    svg += `<path d="${path}" fill="none" stroke="${waveColor}" stroke-width="1" stroke-dasharray="${waveDash}"/>`;
+                }
+                svg += `</svg>`;
+                return svg;
+            };
+
+            if (type === 0) {
+                // อ่านกราฟ
+                page.innerHTML = `
+                    <div class="question-section">
+                        <b>แบบฝึกหัดที่ 1: การวิเคราะห์กราฟ SHM</b><br><br>
+                        พิจารณากราฟการกระจัดเทียบกับเวลาของวัตถุหนึ่งที่เคลื่อนที่แบบฮาร์มอนิกอย่างง่าย ดังรูปด้านล่าง:
+                        <div class="svg-container">${gridSVG(true)}</div>
+                        จงหาค่าต่อไปนี้: <b>แอมพลิจูด (A), คาบ (T), และความถี่ (f)</b>
+                    </div>
+                    <div class="workspace">พื้นที่ทด...</div>
+                    <div class="solution-section">
+                        <b>เฉลยข้อ 1:</b><br>
+                        1. <b>แอมพลิจูด (A):</b> ระยะที่กราฟขึ้นไปสูงสุดจากจุดสมดุล = <b>${A} cm</b><br>
+                        2. <b>คาบ (T):</b> เวลาที่คลื่นครบ 1 รอบ (ขึ้นและลงกลับมาที่เดิม) = <b>${T} s</b><br>
+                        3. <b>ความถี่ (f):</b> f = 1/T = 1/${T} = <b>${f.toFixed(2)} Hz</b>
+                    </div>
+                `;
+            } else {
+                // วาดกราฟ
+                let w = (2*Math.PI/T).toFixed(2);
+                page.innerHTML = `
+                    <div class="question-section">
+                        <b>แบบฝึกหัดที่ 1: การวาดกราฟ SHM</b><br><br>
+                        วัตถุชิ้นหนึ่งเคลื่อนที่แบบฮาร์มอนิกอย่างง่าย โดยมีสมการการกระจัดคือ <b>x = ${A} sin((${w})t)</b> เซนติเมตร<br>
+                        จงหาค่า แอมพลิจูด (A) และ คาบ (T) <b>พร้อมทั้งวาดกราฟการกระจัด-เวลา จำนวน 2 รอบคลื่น</b> ลงในตารางด้านล่างนี้
+                        <div class="svg-container" style="margin-top: 20px;">${gridSVG(false)}</div>
+                    </div>
+                    <div class="workspace" style="flex-grow: 0.5;">พื้นที่ทดเพื่อหาค่า T...</div>
+                    <div class="solution-section">
+                        <b>เฉลยข้อ 1:</b><br>
+                        - แอมพลิจูด A = <b>${A} cm</b> (ดูจากเลขหน้า sin)<br>
+                        - จากสมการ &omega; = ${w} rad/s หาคาบ T = 2&pi;/&omega; = 2(3.1416)/${w} &approx; <b>${T} s</b><br>
+                        <b>กราฟที่ถูกต้อง:</b>
+                        <div class="svg-container" style="margin: 5px 0;">${gridSVG(true, "#dc2626", "2,1")}</div>
+                    </div>
+                `;
+            }
+        }
+
+        // ข้อ 2: สมการ
+        function genQ2() {
+            let funcType = rnd(0, 1); // 0 = sin, 1 = cos
+            let funcName = funcType === 0 ? 'sin' : 'cos';
+            let A = rnd(5, 25);
+            let w = rnd(2, 10);
+            let t_ask = rnd(1, 4) * 0.5;
+
+            let v_eq = funcType === 0 ? `${A*w} cos(${w}t)` : `-${A*w} sin(${w}t)`;
+            let a_eq = funcType === 0 ? `-${A*w*w} sin(${w}t)` : `-${A*w*w} cos(${w}t)`;
+            
+            // ค่านอกสมการ
+            let val_y = funcType === 0 ? A * Math.sin(w * t_ask) : A * Math.cos(w * t_ask);
+            let val_v = funcType === 0 ? A * w * Math.cos(w * t_ask) : -A * w * Math.sin(w * t_ask);
+            let val_a = funcType === 0 ? -A * w * w * Math.sin(w * t_ask) : -A * w * w * Math.cos(w * t_ask);
+
+            document.getElementById('page-q2').innerHTML = `
+                <div class="question-section">
+                    <b>แบบฝึกหัดที่ 2: คณิตศาสตร์ของ SHM</b><br><br>
+                    อนุภาคหนึ่งเคลื่อนที่แบบฮาร์มอนิกอย่างง่าย โดยมีสมการการกระจัดคือ <b>y = ${A} ${funcName}(${w}t)</b> เมตร<br>
+                    จงหา:<br>
+                    1. แอมพลิจูด (A) และความถี่เชิงมุม (&omega;)<br>
+                    2. สมการความเร็ว (v) และสมการความเร่ง (a)<br>
+                    3. การกระจัด, ความเร็ว, และความเร่ง ที่เวลา t = ${t_ask} วินาที <i>(อนุญาตให้ใช้เครื่องคิดเลขได้)</i>
+                </div>
+                <div class="workspace">พื้นที่ทด...</div>
+                <div class="solution-section">
+                    <b>เฉลยข้อ 2:</b><br>
+                    1. เทียบสมการ จะได้ <b>A = ${A} m</b> และ <b>&omega; = ${w} rad/s</b><br>
+                    2. หาสมการโดยการอนุพันธ์ (ดิฟ) เทียบเวลา t:<br>
+                       &nbsp;&nbsp;&nbsp; v = dy/dt = <b>${v_eq} m/s</b><br>
+                       &nbsp;&nbsp;&nbsp; a = dv/dt = <b>${a_eq} m/s&sup2;</b><br>
+                    3. แทนค่า t = ${t_ask} s ลงในสมการข้างต้น (กดเครื่องคิดเลขในโหมดเรเดียน หรือ Radian):<br>
+                       &nbsp;&nbsp;&nbsp; y = ${A} ${funcName}(${w}(${t_ask})) = <b>${val_y.toFixed(3)} m</b><br>
+                       &nbsp;&nbsp;&nbsp; v = <b>${val_v.toFixed(3)} m/s</b><br>
+                       &nbsp;&nbsp;&nbsp; a = <b>${val_a.toFixed(3)} m/s&sup2;</b>
+                </div>
+            `;
+        }
+
+        // ข้อ 3: ลูกตุ้ม
+        function genQ3() {
+            let type = rnd(0, 1);
+            let m = rnd(2, 8);
+            let g = 9.81; // Earth gravity for realism
+
+            let svgPendulum = `<svg viewBox="0 0 100 100" width="120" height="120">
+                <line x1="20" y1="10" x2="80" y2="10" stroke="#334155" stroke-width="4"/>
+                <line x1="50" y1="10" x2="75" y2="80" stroke="#475569" stroke-width="1.5"/>
+                <line x1="50" y1="10" x2="50" y2="80" stroke="#cbd5e1" stroke-dasharray="4,4" stroke-width="1"/>
+                <path d="M 50 40 A 30 30 0 0 0 60 38" fill="none" stroke="red" stroke-width="1"/>
+                <circle cx="75" cy="80" r="8" fill="#3b82f6"/>
+                <text x="88" y="85" font-size="8">m</text>
+            </svg>`;
+
+            if (type === 0) {
+                // หาคาบ
+                let L = rnd(50, 150) / 100; // 0.5 - 1.5 m
+                let T = 2 * Math.PI * Math.sqrt(L/g);
+                document.getElementById('page-q3').innerHTML = `
+                    <div class="question-section">
+                        <b>แบบฝึกหัดที่ 3: ลูกตุ้มนาฬิกาอย่างง่าย</b><br><br>
+                        ลูกตุ้มมวล ${m} kg ถูกนำมาแขวนด้วยเชือกเบายาว ${L} เมตร บนโลก (g = ${g} m/s&sup2;) ดังรูป<br>
+                        <div class="svg-container">${svgPendulum}</div>
+                        เมื่อดึงลูกตุ้มให้ทำมุมเล็กๆ แล้วปล่อย จงหา <b>คาบ (T)</b> และ <b>ความถี่ (f)</b> ของการแกว่ง
+                    </div>
+                    <div class="workspace">พื้นที่ทด...</div>
+                    <div class="solution-section">
+                        <b>เฉลยข้อ 3:</b> (ระวังตัวหลอก: มวล ${m} kg ไม่นำมาคิดคำนวณ)<br>
+                        - หาคาบ (T): จากสูตร T = 2&pi;&radic;(L/g)<br>
+                          T = 2(3.1416)&radic;(${L} / ${g}) = 6.283 &times; &radic;${(L/g).toFixed(4)} = <b>${T.toFixed(3)} วินาที</b><br>
+                        - หาความถี่ (f): f = 1/T = 1 / ${T.toFixed(3)} = <b>${(1/T).toFixed(3)} Hz</b>
+                    </div>
+                `;
+            } else {
+                // ประยุกต์หาความยาวเชือก
+                let T_target = rnd(10, 30) / 10; // 1.0 - 3.0 s
+                let L = g * Math.pow(T_target / (2*Math.PI), 2);
+                document.getElementById('page-q3').innerHTML = `
+                    <div class="question-section">
+                        <b>แบบฝึกหัดที่ 3: การประยุกต์ลูกตุ้มนาฬิกา</b><br><br>
+                        วิศวกรต้องการสร้างนาฬิกาลูกตุ้มมวล ${m} kg ให้แกว่งบนโลก (g = ${g} m/s&sup2;) โดยกำหนดให้ต้องมี <b>คาบการแกว่งเท่ากับ ${T_target} วินาที พอดี</b><br>
+                        <div class="svg-container">${svgPendulum}</div>
+                        วิศวกรคนนี้จะต้องใช้เชือกแขวนลูกตุ้มที่มี <b>ความยาว (L) กี่เมตร</b>
+                    </div>
+                    <div class="workspace">พื้นที่ทด (จัดรูปสมการก่อนแทนค่าจะง่ายกว่านะ)...</div>
+                    <div class="solution-section">
+                        <b>เฉลยข้อ 3:</b><br>
+                        - จากสูตร T = 2&pi;&radic;(L/g) ยกกำลังสองทั้งสองข้าง จะได้ T&sup2; = 4&pi;&sup2;(L/g)<br>
+                        - ย้ายข้างหา L: <b>L = (T&sup2; &times; g) / 4&pi;&sup2;</b><br>
+                        - แทนค่า: L = (${T_target}&sup2; &times; ${g}) / 4(3.1416)&sup2;<br>
+                          L = (${(T_target*T_target).toFixed(2)} &times; ${g}) / 39.478 = <b>${L.toFixed(3)} เมตร</b>
+                    </div>
+                `;
+            }
+        }
+
+        // ข้อ 4: สปริง
+        function genQ4() {
+            let isParallel = rnd(0, 1) === 0;
+            let m = rnd(2, 6);
+            let k1 = rnd(10, 40) * 5; // 50, 100, 150...
+            let k2 = rnd(10, 40) * 5;
+            let x_amp = rnd(5, 15) / 100; // เมตร
+            
+            let k_eq = 0;
+            let svgSpring = "";
+
+            if (isParallel) {
+                k_eq = k1 + k2;
+                svgSpring = `<svg viewBox="0 0 200 100" width="250" height="120">
+                    <rect x="20" y="10" width="10" height="80" fill="#64748b"/>
+                    <path d="M 30 30 Q 45 10 60 30 T 90 30 T 120 30 T 140 30" fill="none" stroke="#0ea5e9" stroke-width="2.5"/>
+                    <path d="M 30 70 Q 45 50 60 70 T 90 70 T 120 70 T 140 70" fill="none" stroke="#f59e0b" stroke-width="2.5"/>
+                    <rect x="140" y="25" width="40" height="50" fill="#f8fafc" stroke="#334155" stroke-width="2"/>
+                    <text x="155" y="55" font-size="14" font-weight="bold">m</text>
+                    <text x="80" y="20" font-size="12" fill="#0ea5e9">k1 = ${k1}</text>
+                    <text x="80" y="95" font-size="12" fill="#f59e0b">k2 = ${k2}</text>
+                </svg>`;
+            } else {
+                k_eq = (k1 * k2) / (k1 + k2);
+                svgSpring = `<svg viewBox="0 0 250 100" width="300" height="120">
+                    <rect x="10" y="10" width="10" height="80" fill="#64748b"/>
+                    <path d="M 20 50 Q 30 30 45 50 T 75 50 T 95 50" fill="none" stroke="#0ea5e9" stroke-width="2.5"/>
+                    <circle cx="95" cy="50" r="4" fill="#ef4444"/>
+                    <path d="M 95 50 Q 110 30 130 50 T 170 50 T 190 50" fill="none" stroke="#f59e0b" stroke-width="2.5"/>
+                    <rect x="190" y="30" width="40" height="40" fill="#f8fafc" stroke="#334155" stroke-width="2"/>
+                    <text x="205" y="55" font-size="14" font-weight="bold">m</text>
+                    <text x="50" y="80" font-size="12" fill="#0ea5e9">k1 = ${k1}</text>
+                    <text x="130" y="80" font-size="12" fill="#f59e0b">k2 = ${k2}</text>
+                </svg>`;
+            }
+
+            let w = Math.sqrt(k_eq / m);
+            let T = 2 * Math.PI / w;
+            let vmax = w * x_amp;
+            let amax = w * w * x_amp;
+
+            let connTypeStr = isParallel ? "แบบขนาน (Parallel)" : "แบบอนุกรม (Series)";
+
+            document.getElementById('page-q4').innerHTML = `
+                <div class="question-section">
+                    <b>แบบฝึกหัดที่ 4: ระบบมวลติดสปริง (ผสม)</b><br><br>
+                    นำสปริง 2 ตัว ที่มีค่านิจสปริง k<sub>1</sub> = ${k1} N/m และ k<sub>2</sub> = ${k2} N/m มาต่อกัน <b>${connTypeStr}</b><br>
+                    จากนั้นนำมวล m = ${m} kg มาติดที่ปลายด้านหนึ่ง ดังรูป
+                    <div class="svg-container">${svgSpring}</div>
+                    เมื่อดึงมวล m ออกจากจุดสมดุลเป็นระยะ ${x_amp * 100} cm แล้วปล่อย จงหา:<br>
+                    1. ค่านิจสปริงรวม (k<sub>รวม</sub>)<br>
+                    2. ความถี่เชิงมุม (&omega;) และ คาบ (T)<br>
+                    3. ความเร็วสูงสุด (v<sub>max</sub>) และ ความเร่งสูงสุด (a<sub>max</sub>)
+                </div>
+                <div class="workspace">พื้นที่ทด...</div>
+                <div class="solution-section">
+                    <b>เฉลยข้อ 4:</b><br>
+                    1. การต่อ ${connTypeStr}: <br>
+                       ${isParallel 
+                         ? `&nbsp;&nbsp;&nbsp;k<sub>รวม</sub> = k<sub>1</sub> + k<sub>2</sub> = ${k1} + ${k2} = <b>${k_eq.toFixed(2)} N/m</b>` 
+                         : `&nbsp;&nbsp;&nbsp;k<sub>รวม</sub> = (k<sub>1</sub> &times; k<sub>2</sub>) / (k<sub>1</sub> + k<sub>2</sub>) = (${k1} &times; ${k2}) / (${k1} + ${k2}) = <b>${k_eq.toFixed(2)} N/m</b>`}<br>
+                    2. หาความถี่เชิงมุม: &omega; = &radic;(k<sub>รวม</sub>/m) = &radic;(${k_eq.toFixed(2)} / ${m}) = &radic;${(k_eq/m).toFixed(2)} = <b>${w.toFixed(3)} rad/s</b><br>
+                       &nbsp;&nbsp;&nbsp;หาคาบ: T = 2&pi;/&omega; = 2(3.1416) / ${w.toFixed(3)} = <b>${T.toFixed(3)} s</b><br>
+                    3. ระยะกระจัดสูงสุด A = ${x_amp * 100} cm = ${x_amp} m<br>
+                       &nbsp;&nbsp;&nbsp;v<sub>max</sub> = &omega;A = ${w.toFixed(3)} &times; ${x_amp} = <b>${vmax.toFixed(3)} m/s</b><br>
+                       &nbsp;&nbsp;&nbsp;a<sub>max</sub> = &omega;&sup2;A = (${w.toFixed(3)})&sup2; &times; ${x_amp} = <b>${amax.toFixed(3)} m/s&sup2;</b>
+                </div>
+            `;
+        }
+
+        window.onload = generateAll;
+    </script>
+</body>
+</html>
